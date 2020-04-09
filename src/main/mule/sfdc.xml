@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:secure-properties="http://www.mulesoft.org/schema/mule/secure-properties" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns:salesforce="http://www.mulesoft.org/schema/mule/salesforce"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/salesforce http://www.mulesoft.org/schema/mule/salesforce/current/mule-salesforce.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/secure-properties http://www.mulesoft.org/schema/mule/secure-properties/current/mule-secure-properties.xsd">
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="dea56553-f402-4a57-8d39-c81db154d16d" >
+		<http:listener-connection host="0.0.0.0" port="8081" />
+	</http:listener-config>
+	<salesforce:sfdc-config name="Salesforce_Config" doc:name="Salesforce Config" doc:id="3e3970ef-f4b0-4812-96b3-6d367a401666" >
+		<salesforce:cached-basic-connection username="${sfdc.username}" password="${sfdc.password}" securityToken="${sfdc.tokennumber}" url="${sfdc.loginurl}" />
+	</salesforce:sfdc-config>
+	<configuration-properties doc:name="Configuration properties" doc:id="dfd6b63e-2f5b-412e-99f9-f49fdf5301e2" file="config.properties" />
+	<salesforce:sfdc-config name="Salesforce_Config1" doc:name="Salesforce Config" doc:id="7939fd59-f322-4227-9303-9c39b7bf6188" >
+		<salesforce:cached-basic-connection username="${sfdc.username}" password="${secure::sfdc.password}" securityToken="${secure::sfdc.tokennumber}" url="${sfdc.loginurl}" />
+	</salesforce:sfdc-config>
+	<secure-properties:config name="Secure_Properties_Config" doc:name="Secure Properties Config" doc:id="aba83727-668f-4942-b7d0-c8993be96252" file="config.properties" key="JalalMS" >
+		<secure-properties:encrypt algorithm="Blowfish" />
+	</secure-properties:config>
+	<flow name="sfdcFlow" doc:id="bf8c3e1a-2096-4249-bb14-5dc16e3aeae0" >
+		<http:listener doc:name="Listener" doc:id="8f248931-d955-4596-b539-905738538563" config-ref="HTTP_Listener_config" path="/SFDC"/>
+		<salesforce:query doc:name="Query" doc:id="e989838f-e284-452a-b1e8-64a18e15fcda" config-ref="Salesforce_Config1">
+			<salesforce:salesforce-query >SELECT Id, FirstName, LastName, Email, Phone FROM Contact limit 200</salesforce:salesforce-query>
+		</salesforce:query>
+		<ee:transform doc:name="Transform Message" doc:id="9049df33-8baa-4bf6-a9fc-03564507c8e2" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+</mule>

@@ -33,5 +33,6 @@ output application/json
 payload]]></ee:set-payload>
 			</ee:message>
 		</ee:transform>
+		<logger level="INFO" doc:name="Logger" doc:id="0be91f13-6b4a-4cf7-8633-c84fd6952fea" message="Second commit to GIT"/>
 	</flow>
 </mule>
